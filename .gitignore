@@ -78,4 +78,4 @@ crashlytics-build.properties
 *.mtl
 
 # AssetStore assets
-/[Aa]ssetStore/
+/[Aa]ssets/[Aa]ssetStore/
