@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+public enum AiState
+{
+    None,
+    Patroling,
+    Attacking,
+    Aggro,
+}
+
 public class EnemryScript : MonoBehaviour
 {
     private Animator animator;
     private NavMeshAgent agent;
 
-    private AiStates.State state;
+    private AiState state;
 
     private int curPatrol = 0;
 
@@ -36,12 +44,12 @@ public class EnemryScript : MonoBehaviour
 
         if (patrolCount > 0)
         {
-            state = AiStates.State.Patroling;
+            state = AiState.Patroling;
             agent.SetDestination(patrolRoute[curPatrol].position);
         }
         else if(patrolCount <= 0)
         {
-            state = AiStates.State.Aggro;
+            state = AiState.Aggro;
         }
     }
 
@@ -50,7 +58,7 @@ public class EnemryScript : MonoBehaviour
         float distanceFromPlayer = Vector3.Distance(playerTr.position, transform.position);
         switch (state)
         {
-            case AiStates.State.Patroling:
+            case AiState.Patroling:
                 if (patrolCount + 1 > 0)
                 {
                     if (agent.remainingDistance < distanceThreshold)
@@ -61,21 +69,21 @@ public class EnemryScript : MonoBehaviour
                 }
                 break;
 
-            case AiStates.State.Aggro:
+            case AiState.Aggro:
                 agent.SetDestination(playerTr.position);
                 if (distanceFromPlayer <= maxAttackDist)
                 {
-                    state = AiStates.State.Attacking;
+                    state = AiState.Attacking;
                     animator.SetTrigger("attackTrigger");
                     animator.SetBool("attack", true);
                     attackLoop = true;
                 }
                 break;
-            case AiStates.State.Attacking:
+            case AiState.Attacking:
                 attackLoop = true;
                 if (distanceFromPlayer > maxAttackDist)
                 {
-                    state = AiStates.State.Aggro;
+                    state = AiState.Aggro;
                     attackLoop = false;
                 }
                 break;
@@ -83,14 +91,14 @@ public class EnemryScript : MonoBehaviour
                 break;
         }
 
-        if ((state != AiStates.State.Aggro || state != AiStates.State.Attacking) && distanceFromPlayer < maxPlayerDist && !attackLoop)
+        if ((state != AiState.Aggro || state != AiState.Attacking) && distanceFromPlayer < maxPlayerDist && !attackLoop)
         {
-            state = AiStates.State.Aggro;
+            state = AiState.Aggro;
             agent.stoppingDistance = distanceWhenAggro;
         }
         else if(distanceFromPlayer > maxPlayerDist && !attackLoop)
         {
-            state = AiStates.State.Patroling;
+            state = AiState.Patroling;
             agent.stoppingDistance = 0;
         }
 
